@@ -16,8 +16,8 @@ import LoginPage from '../pages/auth/login'
 // import OrdersPage     from '../pages/customer/OrdersPage'
 
 // ─── Admin pages ──────────────────────────────────────────────────────────────
-// import AdminProductsPage    from '../pages/admin/ProductsPage'
-// import AdminAddProductPage  from '../pages/admin/AddProductPage'
+import AdminProductsListPage    from '../pages/admin/products/list'
+import AdminProductFormPage  from '../pages/admin/products/form'
 // import AdminEditProductPage from '../pages/admin/EditProductPage'
 
 // ─── Misc pages ───────────────────────────────────────────────────────────────
@@ -88,14 +88,12 @@ const router = createBrowserRouter([
       // List all products in table form
       {
         path: '/admin/products',
-        // element: <AdminProductsPage />,
-        element: <Placeholder label="Admin — Products" />,
+        element: <AdminProductsListPage />,
       },
       // Add a new product
       {
         path: '/admin/products/new',
-        // element: <AdminAddProductPage />,
-        element: <Placeholder label="Admin — Add Product" />,
+        element: <AdminProductFormPage />,
       },
       // Edit / update an existing product
       {
