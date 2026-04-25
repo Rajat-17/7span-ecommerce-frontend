@@ -1,6 +1,10 @@
+import Router from "./routes";
+import { AuthProvider } from "./context/AuthContext";
 
-function App() {
-  return <h1 className="text-red-500 text-3xl">Tailwind Working ✅</h1>;
+export default function App() {
+  return (
+    <AuthProvider>
+      <Router />
+    </AuthProvider>
+  );
 }
-
-export default App;
