@@ -8,65 +8,58 @@ import Button from "../../components/Button";
 import { loginSchema } from "../../utils/validation";
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import Card from "../../components/Card";
 
 export default function LoginForm() {
   const methods = useForm({
     resolver: yupResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
 
   const onSubmit = async (data: any) => {
     try {
       await login(data.email, data.password);
       navigate("/");
-    } catch (err) {
+    } catch {
       alert("Invalid credentials");
     }
   };
 
   return (
-    <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+    <Card>
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
+          <p className="text-sm text-gray-500">Please login to your account</p>
+        </div>
 
-      {/* Header */}
-      <div className="mb-6 text-center">
-        <h2 className="text-2xl font-semibold">Welcome Back 👋</h2>
-        <p className="text-gray-500 text-sm mt-1">
-          Login to your account
-        </p>
-      </div>
+        <div className="space-y-4">
+          <RHFInput name="email" label="Email" placeholder="Enter your email" />
 
-      {/* Form */}
-      <FormProvider
-        methods={methods}
-        onSubmit={methods.handleSubmit(onSubmit)}
-      >
-        <RHFInput
-          name="email"
-          label="Email"
-          placeholder="Enter your email"
-        />
+          <RHFInput
+            name="password"
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+          />
 
-        <RHFInput
-          name="password"
-          label="Password"
-          type="password"
-          placeholder="Enter your password"
-        />
+          <div className="pt-2">
+            <Button type="submit" loading={loading}>
+              Sign In
+            </Button>
+          </div>
+        </div>
 
-        <Button type="submit">
-          {methods.formState.isSubmitting ? "Logging in..." : "Login"}
-        </Button>
+        <div className="text-center mt-4">
+          <p className="text-xs text-gray-500">© 7Span E-Commerce</p>
+        </div>
       </FormProvider>
-
-      {/* Footer */}
-      <p className="text-center text-sm text-gray-500 mt-6">
-        Don’t have an account?{" "}
-        <span className="text-blue-600 cursor-pointer">
-          Register
-        </span>
-      </p>
-    </div>
+    </Card>
   );
 }

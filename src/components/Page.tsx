@@ -4,29 +4,25 @@ import { forwardRef } from "react";
 type Props = {
   children: React.ReactNode;
   title?: string;
-  meta?: React.ReactNode;
-  className?: string;
 };
 
 const Page = forwardRef<HTMLDivElement, Props>(
-  ({ children, title = "", meta, className = "", ...other }, ref) => {
+  ({ children, title = "" }, ref) => {
     return (
       <>
         <Helmet>
           <title>{title ? `${title} | E-Commerce` : "E-Commerce"}</title>
-          {meta}
         </Helmet>
 
         <div
           ref={ref}
-          className={`min-h-screen bg-gray-50 ${className}`}
-          {...other}
+          className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200"
         >
           {children}
         </div>
       </>
     );
-  }
+  },
 );
 
 export default Page;

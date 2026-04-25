@@ -22,24 +22,26 @@ export default function RHFInput({
       render={({ field, fieldState: { error } }) => (
         <div>
           {label && (
-            <label className="block text-sm font-medium mb-1">
-              {label}
-            </label>
+            <label className="block text-sm font-medium mb-1">{label}</label>
           )}
 
           <input
             {...field}
             type={type}
             placeholder={placeholder}
-            className={`w-full px-3 py-2 border rounded-md outline-none
-              ${error ? "border-red-500" : "border-gray-300"}
-              focus:ring-2 focus:ring-blue-500`}
+            className={`w-full px-4 py-2.5 rounded-xl border bg-white
+              focus:outline-none transition
+              ${
+                error
+                  ? "border-red-400 focus:ring-red-200"
+                  : "border-gray-200 focus:ring-2 focus:ring-blue-400"
+              }
+              shadow-sm`
+            }
           />
 
           {error && (
-            <p className="text-red-500 text-sm mt-1">
-              {error.message}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{error.message}</p>
           )}
         </div>
       )}

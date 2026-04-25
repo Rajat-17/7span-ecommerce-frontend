@@ -1,15 +1,15 @@
-type Props = {
-  children: React.ReactNode;
-  type?: "button" | "submit";
-};
-
-export default function Button({ children, type = "button" }: Props) {
+export default function Button({
+  children,
+  type = "button",
+  loading = false,
+}: any) {
   return (
     <button
       type={type}
-      className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+      className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+      disabled={loading}
     >
-      {children}
+      {loading ? "Loading..." : children}
     </button>
   );
 }
