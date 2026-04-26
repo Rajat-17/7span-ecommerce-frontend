@@ -18,7 +18,7 @@ A full-stack ecommerce application with separate **Admin** and **Customer** flow
 
 ```bash
 git clone <repository-url>
-cd react-vite-ecommerce
+cd 7span-ecommerce-frontend
 ```
 
 ### 2. Install dependencies
