@@ -14,19 +14,15 @@ export interface Category {
   description: string
 }
 
-// ─── Validation schema ────────────────────────────────────────────────────────
-
 const schema = yup.object({
   name:        yup.string().required('Product name is required'),
   description: yup.string().required('Description is required'),
-  price:       yup.number().typeError('Enter a valid price').min(0, 'Price must be ≥ 0').required('Price is required'),
-  stock:       yup.number().typeError('Enter a valid stock quantity').integer('Must be a whole number').min(0, 'Stock must be ≥ 0').required('Stock is required'),
+  price:       yup.number().typeError('Enter a valid price').min(1, 'Price must be greater than 0').required('Price is required'),
+  stock:       yup.number().typeError('Enter a valid stock quantity').integer('Must be a whole number').min(1, 'Stock must be greater than 0').required('Stock is required'),
   categoryId:  yup.number().typeError('Select a category').required('Category is required'),
 })
 
 type FormValues = yup.InferType<typeof schema>
-
-// ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function ProductFormSection({ id }: { id?: string }) {
   const navigate = useNavigate()
@@ -47,7 +43,6 @@ export default function ProductFormSection({ id }: { id?: string }) {
     defaultValues: { name: '', description: '', price: 0, stock: 0, categoryId: undefined },
   })
 
-  // ── Fetch categories ──────────────────────────────────────────────────────
   useEffect(() => {
     apiClient
       .get<{ success: boolean; data: Category[] }>('/category')
@@ -55,7 +50,6 @@ export default function ProductFormSection({ id }: { id?: string }) {
       .catch(() => setCategoriesError('Failed to load categories'))
   }, [])
 
-  // ── Load existing product when editing ────────────────────────────────────
   useEffect(() => {
     if (!isEdit) return
     setLoadingProduct(true)
@@ -75,7 +69,6 @@ export default function ProductFormSection({ id }: { id?: string }) {
       .finally(() => setLoadingProduct(false))
   }, [id, isEdit, reset])
 
-  // ── Submit ────────────────────────────────────────────────────────────────
   const onSubmit = async (values: FormValues) => {
     setSubmitError(null)
     try {
@@ -102,7 +95,6 @@ export default function ProductFormSection({ id }: { id?: string }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
-      {/* Name */}
       <TextField
         {...register('name')}
         label="Product Name"
@@ -112,7 +104,6 @@ export default function ProductFormSection({ id }: { id?: string }) {
         fullWidth
       />
 
-      {/* Description */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">Description</label>
         <textarea
@@ -132,7 +123,6 @@ export default function ProductFormSection({ id }: { id?: string }) {
         )}
       </div>
 
-      {/* Price + Stock */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <TextField
           {...register('price')}
@@ -155,7 +145,6 @@ export default function ProductFormSection({ id }: { id?: string }) {
         />
       </div>
 
-      {/* Category */}
       <Dropdown
         {...register('categoryId')}
         label="Category"
@@ -172,12 +161,10 @@ export default function ProductFormSection({ id }: { id?: string }) {
         ))}
       </Dropdown>
 
-      {/* Submit error */}
       {submitError && (
         <p className="text-sm text-red-500">{submitError}</p>
       )}
 
-      {/* Actions */}
       <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
         <Button
           variant="outlined"
