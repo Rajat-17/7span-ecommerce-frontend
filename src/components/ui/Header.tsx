@@ -56,25 +56,10 @@ export default function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          {isAuthenticated ? (
-            <Button variant="contained" color="secondary" size="small" onClick={handleLogout}>
+          {isAuthenticated && (
+            <Button variant="text" color="secondary" size="small" onClick={handleLogout}>
               Logout
             </Button>
-          ) : (
-            <>
-              <NavLink
-                to="/login"
-                className="text-sm font-medium text-gray-600 hover:text-[#2aa4dd] transition-colors"
-              >
-                Login
-              </NavLink>
-              <NavLink
-                to="/register"
-                className="text-sm font-medium px-4 py-2 rounded-md bg-[#2aa4dd] text-white hover:bg-[#1e8bbf] transition-colors"
-              >
-                Register
-              </NavLink>
-            </>
           )}
         </div>
       </div>
