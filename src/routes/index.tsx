@@ -19,11 +19,7 @@ import OrdersPage     from '../pages/customer/orders'
 import AdminProductsListPage    from '../pages/admin/products/list'
 import AdminProductFormPage  from '../pages/admin/products/form'
 
-// ─── Misc pages ───
-// import NotFoundPage  from '../pages/NotFoundPage'
-// import ForbiddenPage from '../pages/ForbiddenPage'
 
-// Temporary placeholder until real pages are built
 const Placeholder = ({ label }: { label: string }) => (
   <div className="flex items-center justify-center min-h-[40vh]">
     <p className="text-gray-400 text-lg">{label} — coming soon</p>
@@ -96,12 +92,10 @@ const router = createBrowserRouter([
 
   {
     path: '/403',
-    // element: <ForbiddenPage />,
     element: <Placeholder label="403 — Forbidden" />,
   },
   {
     path: '/404',
-    // element: <NotFoundPage />,
     element: <Placeholder label="404 — Not Found" />,
   },
   {
