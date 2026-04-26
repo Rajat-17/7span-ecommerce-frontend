@@ -2,12 +2,13 @@ import { useState } from 'react'
 import type { Order } from '../../../type/Order'
 import Card from '../../../components/ui/Card'
 
-const STATUS_STYLES: Record<Order['status'], string> = {
+const STATUS_STYLES: Record<string, string> = {
   pending:    'bg-yellow-100 text-yellow-700',
   processing: 'bg-blue-100 text-blue-700',
   shipped:    'bg-indigo-100 text-indigo-700',
   delivered:  'bg-green-100 text-green-700',
   cancelled:  'bg-red-100 text-red-700',
+  confirmed:  'bg-green-100 text-green-700',
 }
 
 interface OrderRowProps {
@@ -36,7 +37,7 @@ export default function OrderRow({ order }: OrderRowProps) {
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
-          <span className="text-sm font-bold text-gray-800">${order.total.toFixed(2)}</span>
+          <span className="text-sm font-bold text-gray-800">${(order.totalAmount ?? 0).toFixed(2)}</span>
           <span className="text-gray-400 text-sm">{expanded ? '▲' : '▼'}</span>
         </div>
       </button>
@@ -54,13 +55,13 @@ export default function OrderRow({ order }: OrderRowProps) {
               </tr>
             </thead>
             <tbody>
-              {order.items.map((item) => (
-                <tr key={item.productId} className="border-b border-gray-50 last:border-0">
-                  <td className="py-2 text-gray-700">{item.productName}</td>
+              {(order.OrderItem ?? []).map((item) => (
+                <tr key={item.id} className="border-b border-gray-50 last:border-0">
+                  <td className="py-2 text-gray-700">{item.product?.name}</td>
                   <td className="py-2 text-center text-gray-600">{item.quantity}</td>
-                  <td className="py-2 text-right text-gray-600">${item.price.toFixed(2)}</td>
+                  <td className="py-2 text-right text-gray-600">${(item.unitPrice ?? 0).toFixed(2)}</td>
                   <td className="py-2 text-right font-medium text-gray-800">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${((item.unitPrice ?? 0) * (item.quantity ?? 0)).toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -71,7 +72,7 @@ export default function OrderRow({ order }: OrderRowProps) {
                   Order Total
                 </td>
                 <td className="pt-3 text-right text-sm font-bold text-gray-800">
-                  ${order.total.toFixed(2)}
+                  ${(order.totalAmount ?? 0).toFixed(2)}
                 </td>
               </tr>
             </tfoot>

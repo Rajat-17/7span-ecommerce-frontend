@@ -1,45 +1,73 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Product } from '../../../type/Product'
-import { useCart } from '../../../context/CartContext'
+import { useCart } from '../../../hooks/useCart'
 import ProductFilters from './ProductFilters'
 import ProductCard from './ProductCard'
+import type { Category } from '../../../type/Category'
+import apiClient from '../../../lib/apiClient'
 
 export default function ProductListSection() {
   const { addToCart, totalItems } = useCart()
-  const [search, setSearch] = useState('')
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
   const [addedId, setAddedId] = useState<number | null>(null)
 
-  const filtered = useMemo(() => {
-    let list: Product[] = []
+  useEffect(() => {
+    apiClient
+      .get<{ success: boolean; data: Category[] }>('/category')
+      .then(({ data }) => setCategories(data.data))
+      .catch(() => console.error('Failed to load categories'))
+  }, [])
 
-    if (selectedCategory !== null) {
-      list = list.filter((p) => p.categoryId === selectedCategory)
+  const fetchProducts = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { data } = await apiClient.post<{
+        success: boolean
+        data: {
+          products: Product[]
+          total: number, 
+          page: number,
+          totalPages: number,
+        }
+      }>('product/list',{
+        page: 1,
+        limit: 0,
+        search: null,
+        categoryId: selectedCategory,
+      })
+      setProducts(data.data.products)
+    } catch (error) {
+      setError('Failed to fetch products')
+    } finally {
+      setLoading(false)
     }
+  }, [selectedCategory])
 
-    if (search.trim()) {
-      const term = search.toLowerCase()
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(term) ||
-          p.description.toLowerCase().includes(term),
-      )
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart(product)
+      setAddedId(product.id)
+      setTimeout(() => setAddedId(null), 1000)
+    } catch (error) {
+      console.error('Failed to add to cart', error)
     }
-
-    return list
-  }, [search, selectedCategory])
-
-  const handleAddToCart = (product: Product) => {
-    addToCart(product)
-    setAddedId(product.id)
-    setTimeout(() => setAddedId(null), 1200)
   }
 
   return (
     <div>
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm text-gray-500">{filtered.length} product{filtered.length !== 1 ? 's' : ''} found</p>
+        <p className="text-sm text-gray-500">{products.length} product{products.length !== 1 ? 's' : ''} found</p>
         {totalItems > 0 && (
           <a
             href="/cart"
@@ -51,20 +79,18 @@ export default function ProductListSection() {
       </div>
 
       <ProductFilters
-        search={search}
-        onSearchChange={(v) => setSearch(v)}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
-        categories={[]}
+        categories={categories}
       />
 
-      {filtered.length === 0 ? (
+      {products.length === 0 ? (
         <div className="flex items-center justify-center min-h-48 text-gray-400 text-sm">
           No products match your search.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((product) => (
+          {products.map((product) => (
             <div key={product.id} className="relative">
               <ProductCard product={product} onAddToCart={handleAddToCart} />
               {addedId === product.id && (

@@ -1,6 +1,5 @@
 import type { Product } from '../../../type/Product'
-import Button from '../../../components/ui/Button'
-import Card from '../../../components/ui/Card'
+import { Button, Card } from '../../../components/ui'
 
 interface ProductCardProps {
   product: Product

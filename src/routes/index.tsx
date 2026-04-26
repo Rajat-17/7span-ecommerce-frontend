@@ -7,20 +7,19 @@ import GuestGuard from '../guards/GuestGuard'
 import AuthGuard from '../guards/AuthGuard'
 import RoleGuard from '../guards/RoleGuard'
 
-// ─── Auth pages ───────────────────────────────────────────────────────────────
+// ─── Auth pages ───
 import LoginPage from '../pages/auth/login'
 
-// ─── Customer pages ───────────────────────────────────────────────────────────
-// import ProductsPage   from '../pages/customer/ProductsPage'
-// import CartPage       from '../pages/customer/CartPage'
-// import OrdersPage     from '../pages/customer/OrdersPage'
+// ─── Customer pages ───
+import ProductsPage   from '../pages/customer/products'
+import CartPage       from '../pages/customer/cart'
+import OrdersPage     from '../pages/customer/orders'
 
-// ─── Admin pages ──────────────────────────────────────────────────────────────
+// ─── Admin pages ───
 import AdminProductsListPage    from '../pages/admin/products/list'
 import AdminProductFormPage  from '../pages/admin/products/form'
-// import AdminEditProductPage from '../pages/admin/EditProductPage'
 
-// ─── Misc pages ───────────────────────────────────────────────────────────────
+// ─── Misc pages ───
 // import NotFoundPage  from '../pages/NotFoundPage'
 // import ForbiddenPage from '../pages/ForbiddenPage'
 
@@ -32,7 +31,6 @@ const Placeholder = ({ label }: { label: string }) => (
 )
 
 const router = createBrowserRouter([
-  // ─── Guest-only routes (redirect to / when already logged in) ──────────────
   {
     element: (
       <GuestGuard>
@@ -47,7 +45,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  // ─── Customer routes (authenticated + role: customer) ─────────────────────
   {
     element: (
       <AuthGuard>
@@ -59,23 +56,20 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/products',
-        // element: <ProductsPage />,
-        element: <Placeholder label="Products" />,
+        element: <ProductsPage />,
       },
       {
         path: '/cart',
-        // element: <CartPage />,
-        element: <Placeholder label="Cart" />,
+        element: <CartPage />,
       },
       {
         path: '/orders',
-        // element: <OrdersPage />,
-        element: <Placeholder label="Orders" />,
+        element: <OrdersPage />,
       },
     ],
   },
 
-  // ─── Admin routes (authenticated + role: admin) ───────────────────────────
+  // ─── Admin routes (authenticated + role: admin) ───
   {
     element: (
       <AuthGuard>
