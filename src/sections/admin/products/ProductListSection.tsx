@@ -70,7 +70,6 @@ export default function ProductListSection() {
   const [page, setPage]               = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_SIZE)
   const [search, setSearch]           = useState('')
-  const [filterValue, setFilterValue] = useState('')
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState<string | null>(null)
 
@@ -91,7 +90,7 @@ export default function ProductListSection() {
         page: page + 1,
         limit: rowsPerPage,
         search: search.trim(),
-        categoryId: filterValue ? Number(filterValue) : null,
+        categoryId: null,
       })
       setRows(data.data.products)
       setTotalCount(data.data.total)
@@ -100,7 +99,7 @@ export default function ProductListSection() {
     } finally {
       setLoading(false)
     }
-  }, [search, filterValue, page, rowsPerPage])
+  }, [search, page, rowsPerPage])
 
   useEffect(() => {
     fetchProducts()
@@ -109,11 +108,17 @@ export default function ProductListSection() {
   const handleSearch      = (val: string) => { setSearch(val);      setPage(0) }
   const handleRowsPerPage = (val: number) => { setRowsPerPage(val); setPage(0) }
 
-  const handleDelete = (id: number) => {
-    // TODO: call DELETE /admin/products/:id then refetch
-    if (window.confirm('Delete this product?')) {
-      console.log('Delete product', id)
-      fetchProducts()
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Delete this product?')) return
+
+    try {
+      await apiClient.delete(`/product/${id}`)
+      setRows((prev) => prev.filter((r) => r.id !== id))
+      setTotalCount((prev) => Math.max(prev - 1, 0))
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message || 'Failed to delete product. Please try again.'
+      setError(message)
     }
   }
 

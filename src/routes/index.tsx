@@ -85,26 +85,21 @@ const router = createBrowserRouter([
       </AuthGuard>
     ),
     children: [
-      // List all products in table form
       {
         path: '/admin/products',
         element: <AdminProductsListPage />,
       },
-      // Add a new product
       {
         path: '/admin/products/new',
         element: <AdminProductFormPage />,
       },
-      // Edit / update an existing product
       {
         path: '/admin/products/:id/edit',
-        // element: <AdminEditProductPage />,
-        element: <Placeholder label="Admin — Edit Product" />,
+        element: <AdminProductFormPage />,
       },
     ],
   },
 
-  // ─── Fallback routes ──────────────────────────────────────────────────────
   {
     path: '/403',
     // element: <ForbiddenPage />,

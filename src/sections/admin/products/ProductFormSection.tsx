@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -6,6 +6,13 @@ import * as yup from 'yup'
 import Button from '../../../components/ui/Button'
 import TextField from '../../../components/hook-form/TextField'
 import Dropdown from '../../../components/hook-form/Dropdown'
+import apiClient from '../../../lib/apiClient'
+
+export interface Category {
+  id: number
+  name: string
+  description: string
+}
 
 // ─── Validation schema ────────────────────────────────────────────────────────
 
@@ -22,8 +29,13 @@ type FormValues = yup.InferType<typeof schema>
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function ProductFormSection({ id }: { id?: string }) {
-  const navigate  = useNavigate()
-  const isEdit    = !!id
+  const navigate = useNavigate()
+  const isEdit   = !!id
+
+  const [categories, setCategories]       = useState<Category[]>([])
+  const [categoriesError, setCategoriesError] = useState<string | null>(null)
+  const [loadingProduct, setLoadingProduct]   = useState(isEdit)
+  const [submitError, setSubmitError]         = useState<string | null>(null)
 
   const {
     register,
@@ -35,33 +47,57 @@ export default function ProductFormSection({ id }: { id?: string }) {
     defaultValues: { name: '', description: '', price: 0, stock: 0, categoryId: undefined },
   })
 
+  // ── Fetch categories ──────────────────────────────────────────────────────
+  useEffect(() => {
+    apiClient
+      .get<{ success: boolean; data: Category[] }>('/category')
+      .then(({ data }) => setCategories(data.data))
+      .catch(() => setCategoriesError('Failed to load categories'))
+  }, [])
+
   // ── Load existing product when editing ────────────────────────────────────
   useEffect(() => {
     if (!isEdit) return
-    // TODO: replace with real apiClient.get(`/admin/products/${id}`)
-    setTimeout(() => {
-      const product = [].find((p) => p?.id === Number(id))
-      if (product) {
+    setLoadingProduct(true)
+    apiClient
+      .get<{ success: boolean; data: { id: number; name: string; description: string; price: number; stock: number; categoryId: number } }>(`/product/${id}`)
+      .then(({ data }) => {
+        const p = data.data
         reset({
-          name:        product?.name,
-          description: product?.description,
-          price:       product?.price,
-          stock:       product?.stock,
-          categoryId:  product?.categoryId,
+          name:        p.name,
+          description: p.description,
+          price:       p.price,
+          stock:       p.stock,
+          categoryId:  p.categoryId,
         })
-      }
-    }, 100)
+      })
+      .catch(() => setSubmitError('Failed to load product details.'))
+      .finally(() => setLoadingProduct(false))
   }, [id, isEdit, reset])
 
   // ── Submit ────────────────────────────────────────────────────────────────
   const onSubmit = async (values: FormValues) => {
-    // TODO: replace with real API calls
-    // isEdit
-    //   ? await apiClient.put(`/admin/products/${id}`, values)
-    //   : await apiClient.post('/admin/products', values)
-    await new Promise((r) => setTimeout(r, 600)) // demo delay
-    console.log(isEdit ? 'Update product' : 'Create product', values)
-    navigate('/admin/products')
+    setSubmitError(null)
+    try {
+      if (isEdit) {
+        await apiClient.put(`/product/${id}`, values)
+      } else {
+        await apiClient.post('/product/create', values)
+      }
+      navigate('/admin/products')
+    } catch {
+      setSubmitError(
+        isEdit ? 'Failed to update product.' : 'Failed to create product.',
+      )
+    }
+  }
+
+  if (loadingProduct) {
+    return (
+      <div className="flex items-center justify-center min-h-48 text-sm text-gray-400">
+        Loading product…
+      </div>
+    )
   }
 
   return (
@@ -124,16 +160,22 @@ export default function ProductFormSection({ id }: { id?: string }) {
         {...register('categoryId')}
         label="Category"
         error={!!errors.categoryId}
-        helperText={errors.categoryId?.message}
+        helperText={categoriesError ?? errors.categoryId?.message}
         fullWidth
+        disabled={categories.length === 0}
       >
         <option value="">Select a category</option>
-        {[].map((cat) => (
-          <option key={cat?.id} value={cat?.id}>
-            {cat?.name}
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
           </option>
         ))}
       </Dropdown>
+
+      {/* Submit error */}
+      {submitError && (
+        <p className="text-sm text-red-500">{submitError}</p>
+      )}
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">

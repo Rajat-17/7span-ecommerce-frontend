@@ -92,6 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = useCallback(async (email: string, password: string) => {
     const { data } = await apiClient.post<{ success: boolean; data: { token: string; user: User } }>('/auth/login', { email, password })
     localStorage.setItem('user', JSON.stringify(data.data.user))
+    localStorage.setItem('token', data.data.token)
     dispatch({ type: 'LOGIN', payload: { user: data.data.user } })
     return data.data.user
   }, [])
@@ -101,6 +102,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await apiClient.post('/auth/logout')
     } finally {
       localStorage.removeItem('user')
+      localStorage.removeItem('token')
       dispatch({ type: 'LOGOUT' })
     }
   }, [])
