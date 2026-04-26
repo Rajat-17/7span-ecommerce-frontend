@@ -25,15 +25,6 @@ export default function Header() {
         {/* Nav links */}
         <nav className="hidden sm:flex items-center gap-6">
           <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              `text-sm font-medium transition-colors ${isActive ? 'text-[#2aa4dd]' : 'text-gray-600 hover:text-[#2aa4dd]'}`
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
             to={productsPath}
             className={({ isActive }) =>
               `text-sm font-medium transition-colors ${isActive ? 'text-[#2aa4dd]' : 'text-gray-600 hover:text-[#2aa4dd]'}`
@@ -41,15 +32,25 @@ export default function Header() {
           >
             Products
           </NavLink>
-          {isAuthenticated && user?.role === 'customer' && totalItems > 0 && (
-            <NavLink
-              to="/cart"
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors ${isActive ? 'text-[#2aa4dd]' : 'text-gray-600 hover:text-[#2aa4dd]'}`
-              }
-            >
-              Cart ({totalItems})
-            </NavLink>
+          {isAuthenticated && user?.role === 'customer' && (
+            <>
+              <NavLink
+                to="/cart"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition-colors ${isActive ? 'text-[#2aa4dd]' : 'text-gray-600 hover:text-[#2aa4dd]'}`
+                }
+              >
+                Cart ({totalItems})
+              </NavLink>
+              <NavLink
+                to="/orders"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition-colors ${isActive ? 'text-[#2aa4dd]' : 'text-gray-600 hover:text-[#2aa4dd]'}`
+                }
+              >
+                Orders
+              </NavLink>
+            </>
           )}
         </nav>
 

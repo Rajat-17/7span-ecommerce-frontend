@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../../hooks/useCart'
 import Card from '../../../components/ui/Card'
 import CartItemRow from './CartItemRow'
@@ -11,6 +11,7 @@ export default function CartSection() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [placing, setPlacing] = useState(false)
+  const [orderError, setOrderError] = useState<string | null>(null)
 
   // Fetch real cart from API on mount
   useEffect(() => {
@@ -19,12 +20,13 @@ export default function CartSection() {
 
   const handlePlaceOrder = async () => {
     setPlacing(true)
+    setOrderError(null)
     try {
       await apiClient.post('/order')
       clearCart()
       navigate('/orders')
     } catch {
-      // order failed — stay on cart page
+      setOrderError('Failed to place order. Please try again.')
     } finally {
       setPlacing(false)
     }
@@ -42,9 +44,9 @@ export default function CartSection() {
     return (
       <div className="flex flex-col items-center justify-center min-h-64 gap-3 text-center">
         <p className="text-gray-400 text-sm">Your cart is empty.</p>
-        <a href="/products" className="text-sm font-medium text-[#2aa4dd] hover:underline">
+        <Link to="/products" className="text-sm font-medium text-[#2aa4dd] hover:underline">
           Browse Products
-        </a>
+        </Link>
       </div>
     )
   }
@@ -68,7 +70,10 @@ export default function CartSection() {
       </Card>
 
       {/* Summary */}
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 flex flex-col gap-3">
+        {orderError && (
+          <p className="text-sm text-red-500 text-center">{orderError}</p>
+        )}
         <CartSummary
           totalItems={totalItems}
           totalPrice={totalPrice}

@@ -1,65 +1,70 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useCallback, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Product } from '../../../type/Product'
 import { useCart } from '../../../hooks/useCart'
+import apiClient from '../../../lib/apiClient'
 import ProductFilters from './ProductFilters'
 import ProductCard from './ProductCard'
 import type { Category } from '../../../type/Category'
-import apiClient from '../../../lib/apiClient'
 
 export default function ProductListSection() {
   const { addToCart, totalItems } = useCart()
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
-  const [addedId, setAddedId] = useState<number | null>(null)
 
+  const [products, setProducts]               = useState<Product[]>([])
+  const [categories, setCategories]           = useState<Category[]>([])
+  const [search, setSearch]                   = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const [loading, setLoading]                 = useState(false)
+  const [totalCount, setTotalCount]           = useState(0)
+  const [addedId, setAddedId]                 = useState<number | null>(null)
+
+  // ── Debounce search input by 400ms ────────────────────────────────────────
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 400)
+    return () => clearTimeout(t)
+  }, [search])
+
+  // ── Fetch categories once on mount ────────────────────────────────────────
   useEffect(() => {
     apiClient
       .get<{ success: boolean; data: Category[] }>('/category')
       .then(({ data }) => setCategories(data.data))
-      .catch(() => console.error('Failed to load categories'))
+      .catch(() => {/* silently ignore — filter will just be empty */})
   }, [])
 
+  // ── Fetch products whenever filters change ────────────────────────────────
   const fetchProducts = useCallback(async () => {
     setLoading(true)
-    setError(null)
-
     try {
       const { data } = await apiClient.post<{
         success: boolean
-        data: {
-          products: Product[]
-          total: number, 
-          page: number,
-          totalPages: number,
-        }
-      }>('product/list',{
+        data: { products: Product[]; total: number }
+      }>('/product/list', {
         page: 1,
         limit: 0,
-        search: null,
+        search: debouncedSearch.trim(),
         categoryId: selectedCategory,
       })
       setProducts(data.data.products)
-    } catch (error) {
-      setError('Failed to fetch products')
+      setTotalCount(data.data.total)
+    } catch {
+      setProducts([])
+      setTotalCount(0)
     } finally {
       setLoading(false)
     }
-  }, [selectedCategory])
+  }, [debouncedSearch, selectedCategory])
 
-  useEffect(() => {
-    fetchProducts()
-  }, [fetchProducts])
+  useEffect(() => { fetchProducts() }, [fetchProducts])
 
   const handleAddToCart = async (product: Product) => {
     try {
       await addToCart(product)
       setAddedId(product.id)
-      setTimeout(() => setAddedId(null), 1000)
-    } catch (error) {
-      console.error('Failed to add to cart', error)
+      setTimeout(() => setAddedId(null), 1200)
+    } catch {
+      // silently ignore — user can retry
     }
   }
 
@@ -67,14 +72,14 @@ export default function ProductListSection() {
     <div>
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm text-gray-500">{products.length} product{products.length !== 1 ? 's' : ''} found</p>
+        <p className="text-sm text-gray-500">{totalCount} product{totalCount !== 1 ? 's' : ''} found</p>
         {totalItems > 0 && (
-          <a
-            href="/cart"
+          <Link
+            to="/cart"
             className="text-sm font-medium text-[#2aa4dd] hover:underline"
           >
             View Cart ({totalItems})
-          </a>
+          </Link>
         )}
       </div>
 
@@ -84,7 +89,11 @@ export default function ProductListSection() {
         categories={categories}
       />
 
-      {products.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center min-h-48 text-gray-400 text-sm">
+          Loading…
+        </div>
+      ) : products.length === 0 ? (
         <div className="flex items-center justify-center min-h-48 text-gray-400 text-sm">
           No products match your search.
         </div>

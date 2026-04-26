@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Order } from '../../../type/Order'
 import apiClient from '../../../lib/apiClient'
 import OrderRow from './OrderRow'
@@ -27,9 +28,9 @@ export default function OrderListSection() {
     return (
       <div className="flex flex-col items-center justify-center min-h-64 gap-3 text-center">
         <p className="text-gray-400 text-sm">You have no orders yet.</p>
-        <a href="/products" className="text-sm font-medium text-[#2aa4dd] hover:underline">
+        <Link to="/products" className="text-sm font-medium text-[#2aa4dd] hover:underline">
           Start Shopping
-        </a>
+        </Link>
       </div>
     )
   }
