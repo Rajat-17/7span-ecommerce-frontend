@@ -19,7 +19,7 @@ export default function OrderRow({ order }: OrderRowProps) {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <Card size="full" radius="xl" className="p-5">
+    <Card size="full" radius="xl" className="p-5 !min-h-0">
       {/* Header row — always visible */}
       <button
         className="w-full flex items-center justify-between gap-4 text-left"
