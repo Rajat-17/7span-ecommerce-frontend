@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../../components/ui/Button'
 import { DataTable } from '../../../components/table'
-import type { Column, FilterOption } from '../../../components/table'
+import type { Column } from '../../../components/table'
+import apiClient from '../../../lib/apiClient'
 
 export interface Category {
   id: number
@@ -18,29 +19,21 @@ export interface Product {
   stock: number
   categoryId: number
   createdAt: string
+  category: {
+    id: number
+    name: string
+  }
 }
-
-// ─── Column definitions ───────────────────────────────────────────────────────
-
-const categoryName = (categoryId: number) =>
-  [].find((c) => c?.id === categoryId)?.name ?? '—'
 
 const columns: Column<Product>[] = [
   { id: 'id',          label: '#',          width: '60px', align: 'center' },
   { id: 'name',        label: 'Product Name' },
   {
-    id: 'description',
-    label: 'Description',
-    render: (row) => (
-      <span className="text-gray-500 line-clamp-1 max-w-xs">{row.description}</span>
-    ),
-  },
-  {
     id: 'categoryId',
     label: 'Category',
     render: (row) => (
       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-        {categoryName(row.categoryId)}
+        {row.category.name}
       </span>
     ),
   },
@@ -67,14 +60,7 @@ const columns: Column<Product>[] = [
   },
 ]
 
-const CATEGORY_FILTER_OPTIONS: FilterOption[] = [].map((c) => ({
-  label: c?.name,
-  value: String(c?.id),
-}))
-
 const PAGE_SIZE = 5
-
-// ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function ProductListSection() {
   const navigate = useNavigate()
@@ -86,36 +72,41 @@ export default function ProductListSection() {
   const [search, setSearch]           = useState('')
   const [filterValue, setFilterValue] = useState('')
   const [loading, setLoading]         = useState(false)
+  const [error, setError]             = useState<string | null>(null)
 
-  // ── Demo fetch (replace with real apiClient call) ─────────────────────────
-  const fetchProducts = useCallback(() => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
-    setTimeout(() => {
-      let filtered = []
+    setError(null)
 
-      if (search.trim()) {
-        const term = search.toLowerCase()
-        filtered = filtered.filter(
-          (p) =>
-            p.name.toLowerCase().includes(term) ||
-            p.description.toLowerCase().includes(term),
-        )
-      }
-
-      if (filterValue) {
-        filtered = filtered.filter((p) => String(p.categoryId) === filterValue)
-      }
-
-      setTotalCount(filtered.length)
-      setRows(filtered.slice(page * rowsPerPage, (page + 1) * rowsPerPage))
+    try {
+      const { data } = await apiClient.post<{
+        success: boolean
+        data: {
+          products: Product[]
+          total: number, 
+          page: number,
+          totalPages: number,
+        }
+      }>('product/list',{
+        page: page + 1,
+        limit: rowsPerPage,
+        search: search.trim(),
+        categoryId: filterValue ? Number(filterValue) : null,
+      })
+      setRows(data.data.products)
+      setTotalCount(data.data.total)
+    } catch (error) {
+      setError('Failed to fetch products')
+    } finally {
       setLoading(false)
-    }, 300)
+    }
   }, [search, filterValue, page, rowsPerPage])
 
-  useEffect(() => { fetchProducts() }, [fetchProducts])
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
 
   const handleSearch      = (val: string) => { setSearch(val);      setPage(0) }
-  const handleFilter      = (val: string) => { setFilterValue(val); setPage(0) }
   const handleRowsPerPage = (val: number) => { setRowsPerPage(val); setPage(0) }
 
   const handleDelete = (id: number) => {
@@ -166,10 +157,6 @@ export default function ProductListSection() {
       search={search}
       onSearchChange={handleSearch}
       searchPlaceholder="Search by name or description…"
-      filterOptions={CATEGORY_FILTER_OPTIONS}
-      filterValue={filterValue}
-      filterPlaceholder="All Categories"
-      onFilterChange={handleFilter}
       page={page}
       pageCount={pageCount}
       rowsPerPage={rowsPerPage}
@@ -177,7 +164,7 @@ export default function ProductListSection() {
       rowsPerPageOptions={[5, 10, 25]}
       onPageChange={setPage}
       onRowsPerPageChange={handleRowsPerPage}
-      emptyMessage={loading ? 'Loading…' : 'No products found'}
+      emptyMessage={error ?? (loading ? 'Loading…' : 'No products found')}
       actionSlot={
         <Button
           variant="contained"
