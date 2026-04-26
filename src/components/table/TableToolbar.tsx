@@ -5,12 +5,10 @@ interface TableToolbarProps {
   search: string
   onSearchChange: (value: string) => void
   searchPlaceholder?: string
-  /** Filter dropdown options */
   filterOptions?: FilterOption[]
   filterValue?: string
   filterPlaceholder?: string
   onFilterChange?: (value: string) => void
-  /** Action buttons (e.g. "Add Product") rendered on the right */
   actionSlot?: ReactNode
 }
 
@@ -61,9 +59,7 @@ export default function TableToolbar({
 }: TableToolbarProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 py-3 border-b border-gray-100">
-      {/* Left: search + filter */}
       <div className="flex flex-1 items-center gap-3 flex-wrap">
-        {/* Search */}
         <div className="relative">
           <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <SearchIcon />
@@ -80,7 +76,6 @@ export default function TableToolbar({
           />
         </div>
 
-        {/* Filter dropdown */}
         {filterOptions && filterOptions.length > 0 && (
           <div className="relative">
             <select
@@ -105,7 +100,6 @@ export default function TableToolbar({
         )}
       </div>
 
-      {/* Right: action buttons */}
       {actionSlot && (
         <div className="flex items-center gap-2 shrink-0">{actionSlot}</div>
       )}

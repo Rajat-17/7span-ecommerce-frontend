@@ -54,7 +54,6 @@ const LABEL_SIZE_CLASSES: Record<TextFieldSize, string> = {
   normal: 'text-sm',
 }
 
-// Eye icons (inline SVG, no extra dependency)
 function EyeIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -108,7 +107,6 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextFiel
       ? VARIANT_FOCUS_CLASSES[variant]
       : ''
 
-  // Adjust horizontal padding when adornments are present
   const inputPadding = cx(
     size === 'small' ? 'text-sm' : 'text-base',
     startAdornment ? 'pl-0' : '',
@@ -173,7 +171,6 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextFiel
           )}
         />
 
-        {/* Password toggle */}
         {isPassword && (
           <button
             type="button"
@@ -186,7 +183,6 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextFiel
           </button>
         )}
 
-        {/* Custom end adornment (shown only for non-password fields) */}
         {!isPassword && endAdornment && (
           <span className="flex items-center shrink-0 pr-3 text-gray-500">
             {endAdornment}

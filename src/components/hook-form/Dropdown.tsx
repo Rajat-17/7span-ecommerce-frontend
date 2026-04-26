@@ -164,7 +164,6 @@ const Dropdown = forwardRef<HTMLSelectElement, SelectProps>(function Dropdown(
           {children}
         </select>
 
-        {/* Custom end adornment or default chevron for single select */}
         {endAdornment ? (
           <span className="flex items-center shrink-0 pl-2 text-gray-500">
             {endAdornment}

@@ -7,7 +7,6 @@ export interface Column<T> {
   label: string
   align?: CellAlign
   width?: string
-  /** If omitted the raw value at row[id] is rendered */
   render?: (row: T) => ReactNode
 }
 

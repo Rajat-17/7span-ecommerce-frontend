@@ -13,10 +13,6 @@ function cx(...classes: Array<string | undefined | null | false>) {
   return classes.filter(Boolean).join(' ')
 }
 
-/**
- * Returns a smart page-number array with ellipsis where needed.
- * Single missing pages are filled in directly (no pointless "1 … 3").
- */
 function getPageNumbers(current: number, count: number): Array<number | '...'> {
   if (count <= 7) return Array.from({ length: count }, (_, i) => i)
 
@@ -30,7 +26,7 @@ function getPageNumbers(current: number, count: number): Array<number | '...'> {
     if (j > 0) {
       const gap = sorted[j] - sorted[j - 1]
       if (gap === 2) {
-        result.push(sorted[j] - 1) // fill single-page gaps directly
+        result.push(sorted[j] - 1)
       } else if (gap > 2) {
         result.push('...')
       }
@@ -74,7 +70,6 @@ export default function TablePagination({
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 bg-white">
-      {/* Count summary */}
       <p className="text-sm text-gray-500 shrink-0">
         Showing{' '}
         <span className="font-medium text-gray-700">{start}–{end}</span>
@@ -86,7 +81,6 @@ export default function TablePagination({
       </p>
 
       <div className="flex items-center gap-4">
-        {/* Rows per page */}
         <label className="flex items-center gap-2 text-sm text-gray-500">
           Rows per page
           <select
@@ -101,9 +95,7 @@ export default function TablePagination({
           </select>
         </label>
 
-        {/* Page buttons */}
         <div className="flex items-center gap-1">
-          {/* Prev */}
           <button
             type="button"
             onClick={() => onPageChange(page - 1)}
@@ -146,7 +138,6 @@ export default function TablePagination({
             ),
           )}
 
-          {/* Next */}
           <button
             type="button"
             onClick={() => onPageChange(page + 1)}

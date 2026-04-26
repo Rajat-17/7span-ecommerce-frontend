@@ -34,9 +34,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // POST /cart/add — called on every "Add to Cart" click
   const addToCart = useCallback(async (product: Product) => {
-    await apiClient.post('/cart/add', { productId: product.id, quantity: 1 })
-    // Optimistically update local state so the cart badge count is instant
+    let snapshot: CartItem[] = []
     setItems((prev) => {
+      snapshot = prev
       const existing = prev.find((i) => i.productId === product.id)
       if (existing) {
         return prev.map((i) =>
@@ -47,6 +47,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { productId: product.id, name: product.name, price: product.price, quantity: 1, itemTotal: product.price }]
     })
+    try {
+      await apiClient.post('/cart/add', { productId: product.id, quantity: 1 })
+    } catch (error) {
+      setItems(snapshot)
+      throw error
+    }
   }, [])
 
   const removeFromCart = useCallback(async (productId: number) => {
