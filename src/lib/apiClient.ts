@@ -1,8 +1,9 @@
 import axios from 'axios'
+import { HOST_API } from '../config'
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
-  withCredentials: true, // required: sends the httpOnly auth cookie on every request
+  baseURL: HOST_API,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },

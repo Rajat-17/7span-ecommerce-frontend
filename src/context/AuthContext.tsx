@@ -2,8 +2,6 @@ import { createContext, useEffect, useReducer, useCallback } from 'react'
 import type { ReactNode } from 'react'
 import apiClient from '../lib/apiClient'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface User {
   id: number
   name: string
@@ -23,19 +21,15 @@ export type AuthAction =
   | { type: 'LOGOUT' }
 
 export interface AuthContextValue extends AuthState {
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<User>
   logout: () => Promise<void>
 }
-
-// ─── Initial state ────────────────────────────────────────────────────────────
 
 const initialState: AuthState = {
   isAuthenticated: false,
   isInitialized: false,
   user: null,
 }
-
-// ─── Handlers / Reducer ───────────────────────────────────────────────────────
 
 const handlers: {
   [K in AuthAction['type']]: (
@@ -71,11 +65,7 @@ const reducer = (state: AuthState, action: AuthAction): AuthState => {
   return handler ? handler(state, action) : state
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
-
 export const AuthContext = createContext<AuthContextValue | null>(null)
-
-// ─── Provider ─────────────────────────────────────────────────────────────────
 
 interface AuthProviderProps {
   children: ReactNode
@@ -99,14 +89,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [])
 
-  // Calls POST /auth/login — server sets the httpOnly cookie; user is saved to localStorage
   const login = useCallback(async (email: string, password: string) => {
-    const { data } = await apiClient.post<{ user: User }>('/auth/login', { email, password })
-    localStorage.setItem('user', JSON.stringify(data.user))
-    dispatch({ type: 'LOGIN', payload: { user: data.user } })
+    const { data } = await apiClient.post<{ success: boolean; data: { token: string; user: User } }>('/auth/login', { email, password })
+    localStorage.setItem('user', JSON.stringify(data.data.user))
+    dispatch({ type: 'LOGIN', payload: { user: data.data.user } })
+    return data.data.user
   }, [])
 
-  // Calls POST /auth/logout — server clears the httpOnly cookie; localStorage is cleared
   const logout = useCallback(async () => {
     try {
       await apiClient.post('/auth/logout')

@@ -4,18 +4,22 @@ import { useAuth } from '../hooks/useAuth'
 
 interface GuestGuardProps {
   children: ReactNode
-  redirectTo?: string
 }
 
-export default function GuestGuard({ children, redirectTo = '/' }: GuestGuardProps) {
-  const { isAuthenticated, isInitialized } = useAuth()
+/**
+ * Blocks authenticated users from accessing guest-only routes (login, register).
+ * Redirects already-logged-in users to their role-based home page.
+ */
+export default function GuestGuard({ children }: GuestGuardProps) {
+  const { isAuthenticated, isInitialized, user } = useAuth()
 
   if (!isInitialized) {
     return null
   }
 
   if (isAuthenticated) {
-    return <Navigate to={redirectTo} replace />
+    const destination = user?.role === 'admin' ? '/admin/products' : '/products'
+    return <Navigate to={destination} replace />
   }
 
   return <>{children}</>

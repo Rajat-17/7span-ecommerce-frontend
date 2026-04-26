@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import TextField from '../../../components/hook-form/TextField'
 import Button from '../../../components/ui/Button'
@@ -37,11 +36,6 @@ function LockIcon() {
 
 export default function LoginForm() {
   const { login } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  // Redirect back to the page the user tried to access, or fall back to role-based default
-  const from = (location.state as { from?: Location })?.from?.pathname ?? '/'
 
   const {
     register,
@@ -56,7 +50,7 @@ export default function LoginForm() {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       await login(values.email, values.password)
-      navigate(from, { replace: true })
+      // GuestGuard handles the redirect based on role once isAuthenticated becomes true
     } catch {
       // Show a generic error on the email field so it doesn't expose server internals
       setError('email', { message: 'Invalid email or password' })

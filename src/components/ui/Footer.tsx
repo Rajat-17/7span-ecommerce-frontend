@@ -9,17 +9,6 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Brand */}
           <span className="text-lg font-bold text-[#2aa4dd]">ShopApp</span>
-
-          {/* Links */}
-          <nav className="flex items-center gap-6">
-            <NavLink to="/" className="text-sm text-gray-500 hover:text-[#2aa4dd] transition-colors">
-              Home
-            </NavLink>
-            <NavLink to="/products" className="text-sm text-gray-500 hover:text-[#2aa4dd] transition-colors">
-              Products
-            </NavLink>
-          </nav>
-
           {/* Copyright */}
           <p className="text-sm text-gray-400">&copy; {year} ShopApp. All rights reserved.</p>
         </div>
