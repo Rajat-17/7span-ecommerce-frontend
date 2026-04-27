@@ -108,20 +108,6 @@ export default function ProductListSection() {
   const handleSearch      = (val: string) => { setSearch(val);      setPage(0) }
   const handleRowsPerPage = (val: number) => { setRowsPerPage(val); setPage(0) }
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('Delete this product?')) return
-
-    try {
-      await apiClient.delete(`/product/${id}`)
-      setRows((prev) => prev.filter((r) => r.id !== id))
-      setTotalCount((prev) => Math.max(prev - 1, 0))
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message || 'Failed to delete product. Please try again.'
-      setError(message)
-    }
-  }
-
   const pageCount = Math.max(1, Math.ceil(totalCount / rowsPerPage))
 
   const columnsWithActions: Column<Product>[] = [
@@ -140,14 +126,6 @@ export default function ProductListSection() {
             onClick={() => navigate(`/admin/products/${row.id}/edit`)}
           >
             Edit
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            size="small"
-            onClick={() => handleDelete(row.id)}
-          >
-            Delete
           </Button>
         </div>
       ),
